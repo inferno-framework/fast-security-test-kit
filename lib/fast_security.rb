@@ -1,6 +1,6 @@
-require_relative 'inferno_template/patient_group'
+require_relative 'fast_security/patient_group'
 
-module InfernoTemplate
+module FASTSecurity
   class Suite < Inferno::TestSuite
     id :test_suite_template
     title 'Inferno Test Suite Template'
