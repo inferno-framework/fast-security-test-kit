@@ -1,4 +1,6 @@
 # coding: utf-8
+require 'jwt'
+
 module FASTSecurity
   class DiscoveryGroup < Inferno::TestGroup
     include Inferno::DSL::Assertions
@@ -303,6 +305,71 @@ module FASTSecurity
         jwt_regex = %r{^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$}
 
         assert jwt.match?(jwt_regex), '`signed_metadata` is not a valid JWT'
+      end
+    end
+
+    test do
+      title 'signed_metadata contents'
+      description %(
+        TODO
+      )
+
+      input :signed_metadata_jwt, optional: true
+      input :config_json, :url
+
+      run do
+        omit_if signed_metadata_jwt.blank?
+
+        assert_valid_json(config_json)
+        config = JSON.parse(config_json)
+
+        token_body, token_header = JWT.decode(signed_metadata_jwt, nil, false)
+
+        assert token_header.key?('x5c'), 'JWT header does not contain `x5c` field'
+        assert token_header.key?('alg'), 'JWT header does not contain `alg` field'
+
+        cert = OpenSSL::X509::Certificate.new(Base64.decode64(token_header['x5c'].first))
+        # TODO: handle root certs and crls
+        JWT.decode(
+          signed_metadata_jwt,
+          cert.public_key,
+          true,
+          algorithm: token_header['alg']
+        )
+
+        ['iss', 'sub', 'exp', 'iat', 'jti'].each do |key|
+          assert token_body.key?(key), "JWT does not contain `#{key}` claim"
+        end
+
+        ['authorization_endpoint', 'token_endpoint', 'registration_endpoint']
+          .select { |key| config.key? key }
+          .each do |key|
+            assert token_body.key?(key), "JWT must contain `#{key}` claim if it is included in the unsigned metadata"
+          end
+
+        assert token_body['iss'] == url, "`iss` claim `#{token_body['iss']}` is not the same as server base url `#{url}`"
+        alt_name =
+          cert.extensions
+            .find { |extension| extension.oid == 'subjectAltName' }
+            .value
+            .delete_prefix('URI:')
+        assert token_body['iss'] == alt_name,
+               "`iss` claim `#{token_body['iss']}` does not match Subject Alternative Name extension " \
+               "from the `x5c` JWT header `#{alt_name}`"
+        assert token_body['iss'] == token_body['sub'],
+               "`iss` claim `#{token_body['iss']}` does not match `sub` claim `#{token_body['sub']}`"
+
+        ['iat', 'exp'].each do |key|
+          assert token_body[key].is_a?(Numeric), "Expected `#{key}` to be numeric, but found #{token_body[key].class.name}"
+        end
+        issue_time = Time.at(token_body['iat'])
+        expiration_time = Time.at(token_body['exp'])
+
+        assert expiration_time <= issue_time + 1.year, %(
+          `exp` is more than a year after `iat`'.
+          * `iat`: #{token_body['iat']} - #{issue_time.iso8601}
+          * `exp`: #{token_body['exp']} - #{expiration_time.iso8601}
+        )
       end
     end
   end

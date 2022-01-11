@@ -3,6 +3,7 @@ PATH
   specs:
     inferno_template (0.0.2)
       inferno_core (~> 0.1.0)
+      jwt (~> 2.3.0)
 
 GEM
   remote: https://rubygems.org/
