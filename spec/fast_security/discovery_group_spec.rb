@@ -37,52 +37,8 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     Inferno::TestRunner.new(test_session: test_session, test_run: test_run).run(runnable)
   end
 
-  describe 'Capability Statement test' do
-    let(:test) { group.tests.first }
-
-    it 'passes if a CS lists UDAP support' do
-      stub_request(:get, "#{url}/metadata")
-        .to_return(status: 200, body: valid_capabilities.to_json)
-
-      result = run(test, url: url)
-
-      expect(result.result).to eq('pass')
-    end
-
-    it 'fails if a 200 is not received' do
-      stub_request(:get, "#{url}/metadata")
-        .to_return(status: 201, body: valid_capabilities.to_json)
-
-      result = run(test, url: url)
-
-      expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/200/)
-    end
-
-    it 'fails if it receives invalid JSON' do
-      stub_request(:get, "#{url}/metadata")
-        .to_return(status: 200, body: '[[')
-
-      result = run(test, url: url)
-
-      expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/Invalid JSON/)
-    end
-
-    it 'fails if the CS does not list UDAP support' do
-      resource = FHIR::CapabilityStatement.new(fhirVersion: '4.0.1')
-      stub_request(:get, "#{url}/metadata")
-        .to_return(status: 200, body: resource.to_json)
-
-      result = run(test, url: url)
-
-      expect(result.result).to eq('fail')
-      expect(result.result_message).to match(/UDAP service not included/)
-    end
-  end
-
   describe 'Well-Known configuration test' do
-    let(:test) { group.tests[1] }
+    let(:test) { group.tests.first }
 
     it 'passes if JSON is served from the UDAP well-known endpoint' do
       stub_request(:get, "#{url}/.well-known/udap")
@@ -115,7 +71,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'udap_versions_supported field test' do
-    let(:test) { group.tests[2] }
+    let(:test) { group.tests[1] }
 
     it 'fails if field is not ["1"]' do
       config = {}
@@ -136,7 +92,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'udap_certifications_supported field test' do
-    let(:test) { group.tests[3] }
+    let(:test) { group.tests[2] }
 
     it 'omits if field is not present' do
       config = {}
@@ -183,7 +139,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'udap_certifications_required field test' do
-    let(:test) { group.tests[4] }
+    let(:test) { group.tests[3] }
 
     it 'omits if field is not present' do
       config = {}
@@ -230,7 +186,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'grant_types_supported field test' do
-    let(:test) { group.tests[5] }
+    let(:test) { group.tests[4] }
 
     it 'omits if field is not present' do
       config = {}
@@ -277,7 +233,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'scopes_supported field test' do
-    let(:test) { group.tests[6] }
+    let(:test) { group.tests[5] }
 
     it 'omits if field is not present' do
       config = {}
@@ -315,7 +271,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'authorization_endpoint field test' do
-    let(:test) { group.tests[7] }
+    let(:test) { group.tests[6] }
 
     it 'omits if field is not present' do
       config = {}
@@ -353,7 +309,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'token_endpoint field test' do
-    let(:test) { group.tests[8] }
+    let(:test) { group.tests[7] }
 
     it 'omits if field is not present' do
       config = {}
@@ -391,7 +347,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'token_endpoint_auth_methods_supported field test' do
-    let(:test) { group.tests[9] }
+    let(:test) { group.tests[8] }
 
     it 'omits if field is not present' do
       config = {}
@@ -420,7 +376,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'token_endpoint_auth_signing_alg_values_supported field test' do
-    let(:test) { group.tests[10] }
+    let(:test) { group.tests[9] }
 
     it 'omits if field is not present' do
       config = {}
@@ -458,7 +414,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'registration_endpoint field test' do
-    let(:test) { group.tests[11] }
+    let(:test) { group.tests[10] }
 
     it 'omits if field is not present' do
       config = {}
@@ -496,7 +452,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'registration_endpoint_jwt_signing_alg_values_supported field test' do
-    let(:test) { group.tests[12] }
+    let(:test) { group.tests[11] }
 
     it 'omits if field is not present' do
       config = {}
@@ -534,7 +490,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   end
 
   describe 'signed_metadata field test' do
-    let(:test) { group.tests[13] }
+    let(:test) { group.tests[12] }
 
     it 'omits if field is not present' do
       config = {}

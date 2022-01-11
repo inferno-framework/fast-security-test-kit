@@ -17,40 +17,6 @@ module FASTSecurity
     end
 
     test do
-      title 'CapabilityStatement indicates UDAP support'
-      description %(
-        CapabilityStatement **SHALL** include the following code in the
-        `rest.security.service` list:
-        `http://fhir.udap.org/CodeSystem/capability-rest-security-service|UDAP`.
-      )
-
-      input :url
-      # Named requests can be used by other tests
-      makes_request :capabilities
-
-      fhir_client { url :url }
-
-      run do
-        fhir_get_capability_statement(name: :capabilities)
-
-        assert_response_status(200)
-        assert_valid_json(response[:body])
-        assert_resource_type(:capability_statement)
-
-        udap_service_listed =
-          resource&.rest&.any? do |rest|
-            rest.security&.service.any? do |service|
-              service.coding.any? do |coding|
-                coding.code == 'http://fhir.udap.org/CodeSystem/capability-rest-security-service|UDAP'
-              end
-            end
-          end
-
-        assert udap_service_listed, 'UDAP service not included in rest.security.service'
-      end
-    end
-
-    test do
       title 'UDAP Well-Known configuration is available'
       description %(
         The metadata returned from `{baseURL}/.well-known/udap` **SHALL**
@@ -63,7 +29,7 @@ module FASTSecurity
       makes_request :config
 
       run do
-        get("#{url.chomp('/')}/.well-known/udap", name: :config)
+        get("#{url.strip.chomp('/')}/.well-known/udap", name: :config)
         assert_response_status(200)
         assert_valid_json(response[:body])
         output config_json: response[:body]
