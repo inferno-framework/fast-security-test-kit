@@ -316,27 +316,27 @@ module FASTSecurity
     end
 
     test do
-      title 'signed_endpoints field'
+      title 'signed_metadata field'
       description %(
-        If present, `signed_endpoints` is a string containing a JWT
+        If present, `signed_metadata` is a string containing a JWT
       )
 
       input :config_json
-      output :signed_endpoints_jwt
+      output :signed_metadata_jwt
 
       run do
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('signed_endpoints')
-        jwt = config['signed_endpoints']
+        omit_if !config.key?('signed_metadata')
+        jwt = config['signed_metadata']
 
-        assert jwt.is_a?(String), "`signed_endpoints` should be a String, but found #{jwt.class.name}"
-        output signed_endpoints_jwt: jwt
+        assert jwt.is_a?(String), "`signed_metadata` should be a String, but found #{jwt.class.name}"
+        output signed_metadata_jwt: jwt
 
         jwt_regex = %r{^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$}
 
-        assert jwt.match?(jwt_regex), '`signed_endpoints` is not a valid JWT'
+        assert jwt.match?(jwt_regex), '`signed_metadata` is not a valid JWT'
       end
     end
   end

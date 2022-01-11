@@ -528,7 +528,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'signed_endpoints field test' do
+  describe 'signed_metadata field test' do
     let(:test) { group.tests[13] }
 
     it 'omits if field is not present' do
@@ -539,8 +539,8 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
       expect(result.result).to eq('omit')
     end
 
-    it 'fails if signed_endpoints is not a String' do
-      config = { signed_endpoints: 1 }
+    it 'fails if signed_metadata is not a String' do
+      config = { signed_metadata: 1 }
 
       result = run(test, config_json: config.to_json)
 
@@ -548,8 +548,8 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
       expect(result.result_message).to match(/be a String/)
     end
 
-    it 'fails if signed_endpoints is not a JWT' do
-      config = { signed_endpoints: 'abc' }
+    it 'fails if signed_metadata is not a JWT' do
+      config = { signed_metadata: 'abc' }
 
       result = run(test, config_json: config.to_json)
 
@@ -557,8 +557,8 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
       expect(result.result_message).to match(/not a valid JWT/)
     end
 
-    it 'passes if signed_endpoints is a JWT' do
-      config = { signed_endpoints: 'abc.def.xyz' }
+    it 'passes if signed_metadata is a JWT' do
+      config = { signed_metadata: 'abc.def.xyz' }
 
       result = run(test, config_json: config.to_json)
 
