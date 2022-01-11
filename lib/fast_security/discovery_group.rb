@@ -100,7 +100,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('udap_certifications_supported')
+        omit_if !config.key?('udap_certifications_supported')
 
         assert_array_of_strings(config, 'udap_certifications_supported')
 
@@ -127,7 +127,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('udap_certifications_required')
+        omit_if !config.key?('udap_certifications_required')
 
         assert_array_of_strings(config, 'udap_certifications_required')
 
@@ -154,7 +154,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('grant_types_supported')
+        omit_if !config.key?('grant_types_supported')
 
         assert_array_of_strings(config, 'grant_types_supported')
 
@@ -181,7 +181,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('scopes_supported')
+        omit_if !config.key?('scopes_supported')
 
         assert_array_of_strings(config, 'scopes_supported')
       end
@@ -200,7 +200,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('authorization_endpoint')
+        omit_if !config.key?('authorization_endpoint')
 
         endpoint = config['authorization_endpoint']
 
@@ -223,7 +223,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('token_endpoint')
+        omit_if !config.key?('token_endpoint')
 
         endpoint = config['token_endpoint']
 
@@ -246,7 +246,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('token_endpoint_auth_methods_supported')
+        omit_if !config.key?('token_endpoint_auth_methods_supported')
 
         assert config['token_endpoint_auth_methods_supported'] == ['private_key_jwt'],
                "`token_endpoint_auth_methods_supported` field must contain an array " \
@@ -267,7 +267,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('token_endpoint_auth_signing_alg_values_supported')
+        omit_if !config.key?('token_endpoint_auth_signing_alg_values_supported')
 
         assert_array_of_strings(config, 'token_endpoint_auth_signing_alg_values_supported')
       end
@@ -286,7 +286,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('registration_endpoint')
+        omit_if !config.key?('registration_endpoint')
 
         endpoint = config['registration_endpoint']
 
@@ -309,9 +309,34 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        pass_if !config.key?('registration_endpoint_jwt_signing_alg_values_supported')
+        omit_if !config.key?('registration_endpoint_jwt_signing_alg_values_supported')
 
         assert_array_of_strings(config, 'registration_endpoint_jwt_signing_alg_values_supported')
+      end
+    end
+
+    test do
+      title 'signed_endpoints field'
+      description %(
+        If present, `signed_endpoints` is a string containing a JWT
+      )
+
+      input :config_json
+      output :signed_endpoints_jwt
+
+      run do
+        assert_valid_json(config_json)
+        config = JSON.parse(config_json)
+
+        omit_if !config.key?('signed_endpoints')
+        jwt = config['signed_endpoints']
+
+        assert jwt.is_a?(String), "`signed_endpoints` should be a String, but found #{jwt.class.name}"
+        output signed_endpoints_jwt: jwt
+
+        jwt_regex = %r{^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$}
+
+        assert jwt.match?(jwt_regex), '`signed_endpoints` is not a valid JWT'
       end
     end
   end

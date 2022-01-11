@@ -108,9 +108,38 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
       expect(result.result_message).to match(/Invalid JSON/)
     end
   end
-1
-  describe 'udap_certifications_supported_field_test' do
+
+  describe 'udap_versions_supported field test' do
+    let(:test) { group.tests[2] }
+
+    it 'fails if field is not ["1"]' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to match('must contain an array')
+    end
+
+    it 'passes if udap_versions_supported is ["1"]' do
+      config = { udap_versions_supported: ['1'] }
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
+    end
+  end
+
+  describe 'udap_certifications_supported field test' do
     let(:test) { group.tests[3] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if udap_certifications_supported is an array of uri strings' do
       config = { udap_certifications_supported: ['http://abc', 'http://def'] }
@@ -148,8 +177,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'udap_certifications_required_field_test' do
+  describe 'udap_certifications_required field test' do
     let(:test) { group.tests[4] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if udap_certifications_required is an array of uri strings' do
       config = { udap_certifications_required: ['http://abc', 'http://def'] }
@@ -187,8 +224,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'grant_types_supported_field_test' do
+  describe 'grant_types_supported field test' do
     let(:test) { group.tests[5] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if grant_types_supported is an array of uri strings' do
       config = { grant_types_supported: ['http://abc', 'http://def'] }
@@ -226,8 +271,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'scopes_supported_field_test' do
+  describe 'scopes_supported field test' do
     let(:test) { group.tests[6] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if scopes_supported is an array of uri strings' do
       config = { scopes_supported: ['http://abc', 'http://def'] }
@@ -256,8 +309,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'authorization_endpoint_field_test' do
+  describe 'authorization_endpoint field test' do
     let(:test) { group.tests[7] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if authorization_endpoint is a uri strings' do
       config = { authorization_endpoint: 'http://abc' }
@@ -286,8 +347,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'token_endpoint_field_test' do
+  describe 'token_endpoint field test' do
     let(:test) { group.tests[8] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if token_endpoint is a uri strings' do
       config = { token_endpoint: 'http://abc' }
@@ -319,6 +388,14 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'token_endpoint_auth_methods_supported field test' do
     let(:test) { group.tests[9] }
 
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
+
     it 'passes if token_endpoint_auth_methods_supported is ["private_key_jwt"]' do
       config = { token_endpoint_auth_methods_supported: ['private_key_jwt'] }
 
@@ -337,8 +414,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'token_endpoint_auth_signing_alg_values_supported_field_test' do
+  describe 'token_endpoint_auth_signing_alg_values_supported field test' do
     let(:test) { group.tests[10] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if token_endpoint_auth_signing_alg_values_supported is an array of uri strings' do
       config = { token_endpoint_auth_signing_alg_values_supported: ['http://abc', 'http://def'] }
@@ -367,8 +452,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'registration_endpoint_field_test' do
+  describe 'registration_endpoint field test' do
     let(:test) { group.tests[11] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if registration_endpoint is a uri strings' do
       config = { registration_endpoint: 'http://abc' }
@@ -397,8 +490,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
   end
 
-  describe 'registration_endpoint_jwt_signing_alg_values_supported_field_test' do
+  describe 'registration_endpoint_jwt_signing_alg_values_supported field test' do
     let(:test) { group.tests[12] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
 
     it 'passes if registration_endpoint_jwt_signing_alg_values_supported is an array of uri strings' do
       config = { registration_endpoint_jwt_signing_alg_values_supported: ['http://abc', 'http://def'] }
@@ -424,6 +525,44 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/Array of strings/)
+    end
+  end
+
+  describe 'signed_endpoints field test' do
+    let(:test) { group.tests[13] }
+
+    it 'omits if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
+
+    it 'fails if signed_endpoints is not a String' do
+      config = { signed_endpoints: 1 }
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to match(/be a String/)
+    end
+
+    it 'fails if signed_endpoints is not a JWT' do
+      config = { signed_endpoints: 'abc' }
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to match(/not a valid JWT/)
+    end
+
+    it 'passes if signed_endpoints is a JWT' do
+      config = { signed_endpoints: 'abc.def.xyz' }
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
     end
   end
 end
