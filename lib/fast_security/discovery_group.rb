@@ -4,9 +4,12 @@ require 'jwt'
 module FASTSecurity
   class DiscoveryGroup < Inferno::TestGroup
     include Inferno::DSL::Assertions
+
     title 'FAST Discovery'
     description 'Verify that server configuration is made available'
     id :discovery_group
+
+    run_as_group
 
     def assert_array_of_strings(config, field)
       values = config[field]

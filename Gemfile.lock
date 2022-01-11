@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    inferno_template (0.0.2)
+    fast_security_test_kit (0.0.1)
       inferno_core (~> 0.1.0)
       jwt (~> 2.3.0)
 
@@ -172,8 +172,6 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.13.0-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.13.0-x86_64-linux)
-      racc (~> 1.4)
     oauth2 (1.4.7)
       faraday (>= 0.8, < 2.0)
       jwt (>= 1.0, < 3.0)
@@ -181,12 +179,12 @@ GEM
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
     oj (3.13.11)
-    pry (0.14.1)
+    pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    pry-byebug (3.8.0)
+    pry-byebug (3.9.0)
       byebug (~> 11.0)
-      pry (~> 0.10)
+      pry (~> 0.13.0)
     public_suffix (4.0.6)
     puma (5.5.2)
       nio4r (~> 2.0)
@@ -244,7 +242,7 @@ PLATFORMS
 DEPENDENCIES
   database_cleaner-sequel (~> 1.8)
   factory_bot (~> 6.1)
-  inferno_template!
+  fast_security_test_kit!
   rspec (~> 3.10)
   webmock (~> 3.11)
 
