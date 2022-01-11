@@ -4,6 +4,8 @@ ENV INSTALL_PATH=/opt/inferno/
 ENV APP_ENV=production
 RUN mkdir -p $INSTALL_PATH
 
+RUN wget -q -O - --no-check-certificate https://gitlab.mitre.org/mitre-scripts/mitre-pki/raw/master/os_scripts/install_certs.sh | MODE=ubuntu sh
+
 WORKDIR $INSTALL_PATH
 
 ADD *.gemspec $INSTALL_PATH
