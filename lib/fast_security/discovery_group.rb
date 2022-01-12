@@ -6,7 +6,11 @@ module FASTSecurity
     include Inferno::DSL::Assertions
 
     title 'FAST Discovery'
-    description 'Verify that server configuration is made available'
+    description %(
+      Verify that server configuration is made available and conforms with [the
+      discovery
+      requirements](https://build.fhir.org/ig/HL7/fhir-udap-security-ig/discovery.html).
+    )
     id :discovery_group
 
     run_as_group
@@ -314,7 +318,8 @@ module FASTSecurity
     test do
       title 'signed_metadata contents'
       description %(
-        TODO
+        Validate the contents of the `signed_metadata` header, signature, and
+        contents.
       )
 
       input :signed_metadata_jwt, optional: true
