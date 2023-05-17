@@ -2,7 +2,7 @@
 
 This is a collection of tests for the [FAST Security
 IG](https://build.fhir.org/ig/HL7/fhir-udap-security-ig/index.html) using the
-[Inferno FHIR testing tool](https://github.com/inferno-community/inferno-core).
+[Inferno Framework](https://inferno-framework.github.io/inferno-core/).
 
 ## Instructions
 
