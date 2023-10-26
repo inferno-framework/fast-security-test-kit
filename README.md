@@ -1,8 +1,16 @@
 # Inferno FAST Security IG Test Kit 
 
-This is a collection of tests for the [FAST Security
+This is a work-in-progress collection of tests for the [FAST Security
 IG](https://build.fhir.org/ig/HL7/fhir-udap-security-ig/index.html) using the
 [Inferno Framework](https://inferno-framework.github.io/inferno-core/).
+
+Please note that this test kit currently is of very limited scope and currently
+only contains tests for the
+[Discovery](https://build.fhir.org/ig/HL7/fhir-udap-security-ig/discovery.html)
+section of the specification.  These tests were initially developed in support
+of the September 2021 HL7® FHIR® Connectathon.
+
+Future development may increase test coverage of this IG.
 
 ## Instructions
 
@@ -12,7 +20,7 @@ IG](https://build.fhir.org/ig/HL7/fhir-udap-security-ig/index.html) using the
 - Navigate to `http://localhost`. The SMART test suite will be available.
 
 ## License
-Copyright 2022 The MITRE Corporation
+Copyright 2023 The MITRE Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the
