@@ -3,7 +3,7 @@ PATH
   specs:
     fast_security_test_kit (0.1.0)
       inferno_core (>= 0.4.2)
-      jwt (~> 2.3.0)
+      jwt (~> 2.3)
 
 GEM
   remote: https://rubygems.org/
