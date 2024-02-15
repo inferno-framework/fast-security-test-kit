@@ -188,20 +188,12 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'grant_types_supported field test' do
     let(:test) { group.tests[4] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
-    end
-
-    it 'passes if grant_types_supported is an array of uri strings' do
-      config = { grant_types_supported: ['http://abc', 'http://def'] }
-
-      result = run(test, config_json: config.to_json)
-
-      expect(result.result).to eq('pass')
+      expect(result.result).to eq('fail')
     end
 
     it 'fails if grant_types_supported is not an array' do
@@ -211,6 +203,14 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/be an Array/)
+    end
+
+    it 'fails if array is present but empty' do
+      config = { grant_types_supported: []}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
     end
 
     it 'fails if grant_types_supported is an array with a non-string element' do
@@ -229,6 +229,14 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/authorization_code/)
+    end
+
+    it 'passes if grant_types_supported includes a valid grant type' do
+      config = { grant_types_supported: ['client_credentials']}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
     end
   end
 

@@ -90,6 +90,33 @@ module FASTSecurity
     end
 
     test do
+      title 'udap_certifications_required field'
+      description %(
+        If present, `udap_certifications_required` is an array of zero or more
+        certification URIs
+      )
+
+      input :config_json
+
+      run do
+        assert_valid_json(config_json)
+        config = JSON.parse(config_json)
+
+        omit_if !config.key?('udap_certifications_required')
+
+        assert_array_of_strings(config, 'udap_certifications_required')
+
+        non_uri_values =
+          config['udap_certifications_required']
+            .select { |value| !value.match?(URI.regexp) }
+
+        assert non_uri_values.blank?,
+               '`udap_certifacations_required` should be an Array of URI strings, ' \
+               "but found #{non_uri_values.map(&:class).map(&:name).join(', ')}"
+      end
+    end
+    
+    test do
       title 'grant_types_supported field'
       description %(
         If present, `grant_types_supported` is an array of one or more
@@ -115,33 +142,6 @@ module FASTSecurity
                  'The `refresh_token` grant type **SHALL** only be included if the ' \
                  '`authorization_code` grant type is also included.'
         end
-      end
-    end
-
-    test do
-      title 'udap_certifications_required field'
-      description %(
-        If present, `udap_certifications_required` is an array of zero or more
-        certification URIs
-      )
-
-      input :config_json
-
-      run do
-        assert_valid_json(config_json)
-        config = JSON.parse(config_json)
-
-        omit_if !config.key?('udap_certifications_required')
-
-        assert_array_of_strings(config, 'udap_certifications_required')
-
-        non_uri_values =
-          config['udap_certifications_required']
-            .select { |value| !value.match?(URI.regexp) }
-
-        assert non_uri_values.blank?,
-               '`udap_certifacations_required` should be an Array of URI strings, ' \
-               "but found #{non_uri_values.map(&:class).map(&:name).join(', ')}"
       end
     end
 
