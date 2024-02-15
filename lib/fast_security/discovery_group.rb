@@ -9,7 +9,7 @@ module FASTSecurity
     description %(
       Verify that server configuration is made available and conforms with [the
       discovery
-      requirements](https://build.fhir.org/ig/HL7/fhir-udap-security-ig/discovery.html).
+      requirements](https://hl7.org/fhir/us/udap-security/discovery.html).
     )
     id :discovery_group
 
@@ -90,6 +90,35 @@ module FASTSecurity
     end
 
     test do
+      title 'grant_types_supported field'
+      description %(
+        If present, `grant_types_supported` is an array of one or more
+        grant types
+      )
+
+      input :config_json
+
+      run do
+        assert_valid_json(config_json)
+        config = JSON.parse(config_json)
+
+        assert config.key?('grant_types_supported'), "`grant_types_supported` is a required parameter"
+
+        assert_array_of_strings(config, 'grant_types_supported')
+
+        grant_types = config['grant_types_supported']
+
+        assert grant_types.length() >= 1, "Must include at least 1 supported grant type"
+
+        if grant_types.include?('refresh_token')
+          assert grant_types.include?('authorization_code'),
+                 'The `refresh_token` grant type **SHALL** only be included if the ' \
+                 '`authorization_code` grant type is also included.'
+        end
+      end
+    end
+
+    test do
       title 'udap_certifications_required field'
       description %(
         If present, `udap_certifications_required` is an array of zero or more
@@ -113,33 +142,6 @@ module FASTSecurity
         assert non_uri_values.blank?,
                '`udap_certifacations_required` should be an Array of URI strings, ' \
                "but found #{non_uri_values.map(&:class).map(&:name).join(', ')}"
-      end
-    end
-
-    test do
-      title 'grant_types_supported field'
-      description %(
-        If present, `grant_types_supported` is an array of one or more
-        grant types
-      )
-
-      input :config_json
-
-      run do
-        assert_valid_json(config_json)
-        config = JSON.parse(config_json)
-
-        omit_if !config.key?('grant_types_supported')
-
-        assert_array_of_strings(config, 'grant_types_supported')
-
-        grant_types = config['grant_types_supported']
-
-        if grant_types.include?('refresh_token')
-          assert grant_types.include?('authorization_code'),
-                 'The `refresh_token` grant type **SHALL** only be included if the ' \
-                 '`authorization_code` grant type is also included.'
-        end
       end
     end
 
