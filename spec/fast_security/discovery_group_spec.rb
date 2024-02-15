@@ -290,24 +290,39 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'authorization_endpoint field test' do
     let(:test) { group.tests[6] }
 
-    it 'omits if field is not present' do
+    it 'skips if grant_types_supported field is not present' do
       config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('skip')
+    end
+
+    it 'skips if grant_types_supported values are not an array' do
+      config = { grant_types_supported: 'authorization_code'}
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('skip')
+    end
+
+    it 'omits if authorization_code is not a supported grant type' do
+      config = { grant_types_supported: ['client_credentials']}
 
       result = run(test, config_json: config.to_json)
 
       expect(result.result).to eq('omit')
     end
 
-    it 'passes if authorization_endpoint is a uri strings' do
-      config = { authorization_endpoint: 'http://abc' }
+    it 'fails if authorization_code is a supported grant type but authorization_endpoint field is not present' do
+      config = { grant_types_supported: ['authorization_code']}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('pass')
+      expect(result.result).to eq('fail')
     end
 
     it 'fails if authorization_endpoint is not a string' do
-      config = { authorization_endpoint: ['http://abc'] }
+      config = { grant_types_supported: ['authorization_code'], authorization_endpoint: ['http://abc'] }
 
       result = run(test, config_json: config.to_json)
 
@@ -316,12 +331,20 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if authorization_endpoint is a non-uri string' do
-      config = { authorization_endpoint: 'def' }
+      config = { grant_types_supported: ['authorization_code'], authorization_endpoint: 'def' }
 
       result = run(test, config_json: config.to_json)
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/valid URI/)
+    end
+
+    it 'passes if authorization_code is a supported grant type and authorization_endpoint is a uri string' do
+      config = { grant_types_supported: ['authorization_code'], authorization_endpoint: 'http://abc' }
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
     end
   end
 

@@ -1,4 +1,5 @@
 # coding: utf-8
+require 'pry'
 require 'jwt'
 
 module FASTSecurity
@@ -168,8 +169,7 @@ module FASTSecurity
     test do
       title 'authorization_endpoint field'
       description %(
-        If present, `authorization_endpoint` is a string containing the URL of
-        the Authorization Server's authorization endpoint
+        A string containing the absolute URL of the Authorization Server's authorization endpoint. This parameter SHALL be present if the value of the grant_types_supported parameter includes the string "authorization_code"
       )
 
       input :config_json
@@ -178,7 +178,11 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('authorization_endpoint')
+        skip_if (!config.key?('grant_types_supported') || !config['grant_types_supported'].is_a?(Array)), 'Assessment of `authorization_endpoint` field is dependent on values in `grant_types_supported` field, which is not present or correctly formatted'
+
+        omit_if !config['grant_types_supported'].include?('authorization_code'), '`authorization_endpoint` field is only required if `authorization_code` is a supported grant type'
+
+        assert config.key?('authorization_endpoint'), '`authorization_endpoint` field is required if `authorization_endpoint` is a supported grant type'
 
         endpoint = config['authorization_endpoint']
 
