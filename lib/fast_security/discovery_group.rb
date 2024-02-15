@@ -75,7 +75,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('udap_certifications_supported')
+        assert config.key?('udap_certifications_supported'), "`udap_certifications_supported is a required parameter"
 
         assert_array_of_strings(config, 'udap_certifications_supported')
 
@@ -92,7 +92,7 @@ module FASTSecurity
     test do
       title 'udap_certifications_required field'
       description %(
-        If present, `udap_certifications_required` is an array of zero or more
+        If `udap_certifications_supported` is not empty, then `udap_certifications_required` is an array of zero or more
         certification URIs
       )
 
@@ -102,7 +102,9 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('udap_certifications_required')
+        skip_if !config.key?('udap_certifications_supported'), 'Assessment of `udap_certifications_required` field is dependent on values in `udap_certifications_supported` field, which is not present'
+
+        omit_if config['udap_certifications_supported'].blank?, 'No UDAP certifications are supported'
 
         assert_array_of_strings(config, 'udap_certifications_required')
 
@@ -115,12 +117,11 @@ module FASTSecurity
                "but found #{non_uri_values.map(&:class).map(&:name).join(', ')}"
       end
     end
-    
+
     test do
       title 'grant_types_supported field'
       description %(
-        If present, `grant_types_supported` is an array of one or more
-        grant types
+        `grant_types_supported` is an array of one or more grant types
       )
 
       input :config_json

@@ -94,12 +94,12 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'udap_certifications_supported field test' do
     let(:test) { group.tests[2] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
     it 'passes if udap_certifications_supported is an array of uri strings' do
@@ -141,16 +141,25 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'udap_certifications_required field test' do
     let(:test) { group.tests[3] }
 
-    it 'omits if field is not present' do
+    it 'skips if udap_certifications_supported field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
+      expect(result.result).to eq('skip')
+    end
+
+    it 'omits if no UDAP certifications are supported' do 
+      config = { udap_certifications_supported: [ ]}
+      
+      result = run(test, config_json: config.to_json)
+
       expect(result.result).to eq('omit')
+
     end
 
     it 'passes if udap_certifications_required is an array of uri strings' do
-      config = { udap_certifications_required: ['http://abc', 'http://def'] }
+      config = { udap_certifications_supported: ['http://abc', 'http://def'],   udap_certifications_required: ['http://abc', 'http://def'] }
 
       result = run(test, config_json: config.to_json)
 
@@ -158,7 +167,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if udap_certifications_required is not an array' do
-      config = { udap_certifications_required: 'http://abc' }
+      config = { udap_certifications_supported: ['http://abc', 'http://def'],udap_certifications_required: 'http://abc' }
 
       result = run(test, config_json: config.to_json)
 
@@ -167,7 +176,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if udap_certifications_required is an array with a non-string element' do
-      config = { udap_certifications_required: ['http://abc', 1] }
+      config = { udap_certifications_supported: ['http://abc', 'http://def'],udap_certifications_required: ['http://abc', 1] }
 
       result = run(test, config_json: config.to_json)
 
@@ -176,7 +185,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if udap_certifications_required is an array with a non-uri string element' do
-      config = { udap_certifications_required: ['http://abc', 'def'] }
+      config = { udap_certifications_supported: ['http://abc', 'http://def'],udap_certifications_required: ['http://abc', 'def'] }
 
       result = run(test, config_json: config.to_json)
 
