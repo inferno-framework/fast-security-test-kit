@@ -240,7 +240,7 @@ module FASTSecurity
       title 'token_endpoint_auth_signing_alg_values_supported field'
       description %(
        `token_endpoint_auth_signing_alg_values_supported` is an
-        array of one or more strings identifying signature algorithms
+        array of one or more strings identifying signature algorithms supported by the Authorization Server for validation of signed JWTs submitted to the token endpoint for client authentication.
       )
 
       input :config_json
@@ -286,7 +286,7 @@ module FASTSecurity
       title 'registration_endpoint_jwt_signing_alg_values_supported field'
       description %(
         If present, `registration_endpoint_jwt_signing_alg_values_supported` is
-        an array of one or more strings identifying signature algorithms
+        an array of one or more strings identifying signature algorithms supported by the Authorization Server for validation of signed software statements, certifications, and endorsements submitted to the registration endpoint.
       )
 
       input :config_json
@@ -295,7 +295,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('registration_endpoint_jwt_signing_alg_values_supported')
+        omit_if !config.key?('registration_endpoint_jwt_signing_alg_values_supported'), '`registration_endpoint_jwt_signing_alg_values_supported` field is recommended but not required'
 
         assert_array_of_strings(config, 'registration_endpoint_jwt_signing_alg_values_supported')
       end
