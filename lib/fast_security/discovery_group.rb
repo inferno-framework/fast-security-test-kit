@@ -195,7 +195,7 @@ module FASTSecurity
     test do
       title 'token_endpoint field'
       description %(
-        If present, `token_endpoint` is a string containing the URL of
+       `token_endpoint` is a string containing the URL of
         the Authorization Server's token endpoint
       )
 
@@ -205,7 +205,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('token_endpoint')
+        assert config.key?('token_endpoint'), '`token_endpoint` is a required field'
 
         endpoint = config['token_endpoint']
 

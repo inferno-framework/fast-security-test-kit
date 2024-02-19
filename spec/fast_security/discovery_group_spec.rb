@@ -351,12 +351,12 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'token_endpoint field test' do
     let(:test) { group.tests[7] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
     it 'passes if token_endpoint is a uri strings' do
