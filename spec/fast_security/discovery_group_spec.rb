@@ -418,16 +418,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'token_endpoint_auth_signing_alg_values_supported field test' do
     let(:test) { group.tests[9] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
-    it 'passes if token_endpoint_auth_signing_alg_values_supported is an array of uri strings' do
-      config = { token_endpoint_auth_signing_alg_values_supported: ['http://abc', 'http://def'] }
+    it 'passes if token_endpoint_auth_signing_alg_values_supported is an array of one or more strings' do
+      config = { token_endpoint_auth_signing_alg_values_supported: ['RS256', 'ES384'] }
 
       result = run(test, config_json: config.to_json)
 
@@ -435,7 +435,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if token_endpoint_auth_signing_alg_values_supported is not an array' do
-      config = { token_endpoint_auth_signing_alg_values_supported: 'http://abc' }
+      config = { token_endpoint_auth_signing_alg_values_supported: 'RS256' }
 
       result = run(test, config_json: config.to_json)
 
@@ -444,12 +444,20 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if token_endpoint_auth_signing_alg_values_supported is an array with a non-string element' do
-      config = { token_endpoint_auth_signing_alg_values_supported: ['http://abc', 1] }
+      config = { token_endpoint_auth_signing_alg_values_supported: ['RS256', 1] }
 
       result = run(test, config_json: config.to_json)
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/Array of strings/)
+    end
+
+    it 'fails if token_endpoint_auth_signing_alg_values_supported is an empty array' do
+      config = {token_endpoint_auth_signing_alg_values_supported: []}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
     end
   end
 

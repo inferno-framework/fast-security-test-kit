@@ -239,7 +239,7 @@ module FASTSecurity
     test do
       title 'token_endpoint_auth_signing_alg_values_supported field'
       description %(
-        If present, `token_endpoint_auth_signing_alg_values_supported` is an
+       `token_endpoint_auth_signing_alg_values_supported` is an
         array of one or more strings identifying signature algorithms
       )
 
@@ -249,9 +249,13 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('token_endpoint_auth_signing_alg_values_supported')
+        assert config.key?('token_endpoint_auth_signing_alg_values_supported'), '`token_endpoint_auth_signing_alg_values_supported` is a required field'
 
         assert_array_of_strings(config, 'token_endpoint_auth_signing_alg_values_supported')
+
+        algs_supported = config['token_endpoint_auth_signing_alg_values_supported']
+
+        assert algs_supported.length() >= 1, 'Must support at least one signature algorithm'
       end
     end
 
