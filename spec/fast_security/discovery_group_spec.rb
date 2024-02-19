@@ -1,3 +1,5 @@
+require 'pry'
+
 RSpec.describe FASTSecurity::DiscoveryGroup do
   let(:suite) { Inferno::Repositories::TestSuites.new.find('fast_security') }
   let(:group) { suite.groups[0] }
@@ -629,6 +631,42 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
 
         expect(result.result).to eq('pass')
       end
+    end
+  end
+
+  describe 'udap_authorization_extensions_supported field test' do 
+    let(:test) { group.tests[15] }
+
+    it 'fails if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+    end
+
+    it 'fails if udap_authorization_extensions_supported value is not an array' do
+      config = {udap_authorization_extensions_supported: 'hl7-b2b'}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+    end
+
+    it 'passes if array is empty' do
+      config = {udap_authorization_extensions_supported: []}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
+    end
+
+    it 'passes if array includes a string' do 
+      config = {udap_authorization_extensions_supported: ['hl7-b2b']}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
     end
   end
 end

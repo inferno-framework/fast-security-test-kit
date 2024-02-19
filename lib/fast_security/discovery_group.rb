@@ -425,5 +425,27 @@ module FASTSecurity
         end
       end
     end
+
+    test do
+      title 'udap_authorization_extensions_supported field'
+      description %(
+        An array of zero or more recognized key names for Authorization Extension Objects supported by the Authorization Server.
+      )
+
+      input :config_json
+
+      run do
+        assert_valid_json(config_json)
+        config = JSON.parse(config_json)
+
+        assert config.key?('udap_authorization_extensions_supported'), '`udap_authorization_extensions_supported` is a required field'
+
+        assert config['udap_authorization_extensions_supported'].is_a?(Array), "`udap_authorization_extensions_supported` must be an array"
+      end
+    end
+
+    test do 
+
+    end
   end
 end
