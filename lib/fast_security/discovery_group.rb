@@ -391,5 +391,39 @@ module FASTSecurity
         )
       end
     end
+  
+    test do 
+      title 'udap_profiles_supported field'
+      description %(
+        An array of two or more strings identifying the core UDAP profiles supported by the Authorization Server. The array SHALL include:
+        "udap_dcr" for UDAP Dynamic Client Registration, and
+        "udap_authn" for UDAP JWT-Based Client Authentication.
+        If the grant_types_supported parameter includes the string "client_credentials", then the array SHALL also include:
+        "udap_authz" for UDAP Client Authorization Grants using JSON Web Tokens to indicate support for Authorization Extension Objects.
+        If the server supports the user authentication workflow described in Section 6, then the array SHALL also include:
+        "udap_to" for UDAP Tiered OAuth for User Authentication.
+      )
+
+      input :config_json
+
+      run do 
+        assert_valid_json(config_json)
+        config = JSON.parse(config_json)
+
+        assert config.key?('udap_profiles_supported'), '`udap_profiles_supported` is a required field'
+
+        assert_array_of_strings(config, 'udap_profiles_supported')
+
+        profiles_supported = config['udap_profiles_supported']
+        
+        assert profiles_supported.include?('udap_dcr'), 'Array must include `udap_dcr` to indicate support for required UDAP Dynamic Client Registration profile'
+
+        assert profiles_supported.include?('udap_authn'), 'Array must include `udap_authn` value to indicate support for required UDAP JWT-Based Client Authentication profile'
+
+        if (config.key?('grant_types_supported') && config['grant_types_supported'].include?('client_credentials'))
+          assert profiles_supported.include?('udap_authz'), '`client_credentials` grant type is supported, so array must include `udap_authz` to indicate support for UDAP Client Authorization Grants using JSON Web Tokens'
+        end
+      end
+    end
   end
 end
