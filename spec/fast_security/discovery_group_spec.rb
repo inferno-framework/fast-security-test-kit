@@ -464,15 +464,15 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'registration_endpoint field test' do
     let(:test) { group.tests[10] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
-    it 'passes if registration_endpoint is a uri strings' do
+    it 'passes if registration_endpoint is a uri string' do
       config = { registration_endpoint: 'http://abc' }
 
       result = run(test, config_json: config.to_json)

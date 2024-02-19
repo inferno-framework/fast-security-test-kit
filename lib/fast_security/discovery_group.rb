@@ -262,7 +262,7 @@ module FASTSecurity
     test do
       title 'registration_endpoint field'
       description %(
-        If present, `registration_endpoint` is a string containing the URL of
+        `registration_endpoint` is a string containing the URL of
         the Authorization Server's registration endpoint
       )
 
@@ -272,7 +272,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('registration_endpoint')
+        assert config.key?('registration_endpoint'), '`registration_endpoint` is a required field'
 
         endpoint = config['registration_endpoint']
 
