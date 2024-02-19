@@ -218,7 +218,7 @@ module FASTSecurity
     test do
       title 'token_endpoint_auth_methods_supported field'
       description %(
-        If present, `token_endpoint_auth_methods_supported` must contain a fixed
+        `token_endpoint_auth_methods_supported` must contain a fixed
         array with one string element: `["private_key_jwt"]`
       )
 
@@ -228,7 +228,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('token_endpoint_auth_methods_supported')
+        assert config.key?('token_endpoint_auth_methods_supported'), '`token_endpoint_auth_methods_supported` is a required field'
 
         assert config['token_endpoint_auth_methods_supported'] == ['private_key_jwt'],
                "`token_endpoint_auth_methods_supported` field must contain an array " \
