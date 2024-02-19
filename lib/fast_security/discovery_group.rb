@@ -314,7 +314,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        omit_if !config.key?('signed_metadata')
+        assert config.key?('signed_metadata'), '`signed_metadata is a required field'
         jwt = config['signed_metadata']
 
         assert jwt.is_a?(String), "`signed_metadata` should be a String, but found #{jwt.class.name}"

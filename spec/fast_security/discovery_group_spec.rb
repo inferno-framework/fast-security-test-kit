@@ -540,12 +540,12 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'signed_metadata field test' do
     let(:test) { group.tests[12] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
     it 'fails if signed_metadata is not a String' do
