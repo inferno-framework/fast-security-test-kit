@@ -65,7 +65,7 @@ module FASTSecurity
     test do
       title 'udap_certifications_supported field'
       description %(
-        If present, `udap_certifications_supported` is an array of zero or more
+        `udap_certifications_supported` is an array of zero or more
         certification URIs
       )
 
@@ -75,7 +75,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        assert config.key?('udap_certifications_supported'), "`udap_certifications_supported is a required parameter"
+        assert config.key?('udap_certifications_supported'), "`udap_certifications_supported` is a required field"
 
         assert_array_of_strings(config, 'udap_certifications_supported')
 
@@ -130,7 +130,7 @@ module FASTSecurity
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
 
-        assert config.key?('grant_types_supported'), "`grant_types_supported` is a required parameter"
+        assert config.key?('grant_types_supported'), "`grant_types_supported` is a required field"
 
         assert_array_of_strings(config, 'grant_types_supported')
 
@@ -168,7 +168,7 @@ module FASTSecurity
     test do
       title 'authorization_endpoint field'
       description %(
-        A string containing the absolute URL of the Authorization Server's authorization endpoint. This parameter SHALL be present if the value of the grant_types_supported parameter includes the string "authorization_code"
+        `authorization_endpoint` is a string containing the absolute URL of the Authorization Server's authorization endpoint. This parameter SHALL be present if the value of the grant_types_supported parameter includes the string "authorization_code"
       )
 
       input :config_json
@@ -226,8 +226,6 @@ module FASTSecurity
       run do
         assert_valid_json(config_json)
         config = JSON.parse(config_json)
-
-        assert config.key?('token_endpoint_auth_methods_supported'), '`token_endpoint_auth_methods_supported` is a required field'
 
         assert config['token_endpoint_auth_methods_supported'] == ['private_key_jwt'],
                "`token_endpoint_auth_methods_supported` field must contain an array " \
@@ -303,7 +301,7 @@ module FASTSecurity
     test do
       title 'signed_metadata field'
       description %(
-        If present, `signed_metadata` is a string containing a JWT
+       `signed_metadata` is a string containing a JWT listing the server's endpoints
       )
 
       input :config_json
@@ -394,13 +392,11 @@ module FASTSecurity
     test do 
       title 'udap_profiles_supported field'
       description %(
-        An array of two or more strings identifying the core UDAP profiles supported by the Authorization Server. The array SHALL include:
-        "udap_dcr" for UDAP Dynamic Client Registration, and
-        "udap_authn" for UDAP JWT-Based Client Authentication.
-        If the grant_types_supported parameter includes the string "client_credentials", then the array SHALL also include:
-        "udap_authz" for UDAP Client Authorization Grants using JSON Web Tokens to indicate support for Authorization Extension Objects.
-        If the server supports the user authentication workflow described in Section 6, then the array SHALL also include:
-        "udap_to" for UDAP Tiered OAuth for User Authentication.
+        `udap_profiles_supported` is an array of two or more strings identifying the core UDAP profiles supported by the Authorization Server. The array SHALL include:
+        `udap_dcr` for UDAP Dynamic Client Registration, and
+        `udap_authn` for UDAP JWT-Based Client Authentication.
+        If the `grant_types_supported` parameter includes the string `client_credentials`, then the array SHALL also include:
+        `udap_authz` for UDAP Client Authorization Grants using JSON Web Tokens to indicate support for Authorization Extension Objects.
       )
 
       input :config_json
@@ -428,7 +424,7 @@ module FASTSecurity
     test do
       title 'udap_authorization_extensions_supported field'
       description %(
-        An array of zero or more recognized key names for Authorization Extension Objects supported by the Authorization Server.
+        `udap_authorization_extensions_supported` is an array of zero or more recognized key names for Authorization Extension Objects supported by the Authorization Server.
       )
 
       input :config_json
@@ -446,7 +442,7 @@ module FASTSecurity
     test do 
       title 'udap_authorization_extensions_required field'
       description %(
-        An array of zero or more recognized key names for Authorization Extension Objects required by the Authorization Server in every token request. This metadata parameter SHALL be present if the value of the udap_authorization_extensions_supported parameter is not an empty array.
+        `udap_authorization_extensions_required field` is an array of zero or more recognized key names for Authorization Extension Objects required by the Authorization Server in every token request. This metadata parameter SHALL be present if the value of the `udap_authorization_extensions_supported` parameter is not an empty array.
       )
 
       input :config_json
