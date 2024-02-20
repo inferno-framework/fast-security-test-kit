@@ -94,12 +94,12 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'udap_certifications_supported field test' do
     let(:test) { group.tests[2] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
     it 'passes if udap_certifications_supported is an array of uri strings' do
@@ -141,16 +141,25 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'udap_certifications_required field test' do
     let(:test) { group.tests[3] }
 
-    it 'omits if field is not present' do
+    it 'skips if udap_certifications_supported field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
+      expect(result.result).to eq('skip')
+    end
+
+    it 'omits if no UDAP certifications are supported' do 
+      config = { udap_certifications_supported: [ ]}
+      
+      result = run(test, config_json: config.to_json)
+
       expect(result.result).to eq('omit')
+
     end
 
     it 'passes if udap_certifications_required is an array of uri strings' do
-      config = { udap_certifications_required: ['http://abc', 'http://def'] }
+      config = { udap_certifications_supported: ['http://abc', 'http://def'],   udap_certifications_required: ['http://abc', 'http://def'] }
 
       result = run(test, config_json: config.to_json)
 
@@ -158,7 +167,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if udap_certifications_required is not an array' do
-      config = { udap_certifications_required: 'http://abc' }
+      config = { udap_certifications_supported: ['http://abc', 'http://def'],udap_certifications_required: 'http://abc' }
 
       result = run(test, config_json: config.to_json)
 
@@ -167,7 +176,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if udap_certifications_required is an array with a non-string element' do
-      config = { udap_certifications_required: ['http://abc', 1] }
+      config = { udap_certifications_supported: ['http://abc', 'http://def'],udap_certifications_required: ['http://abc', 1] }
 
       result = run(test, config_json: config.to_json)
 
@@ -176,7 +185,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if udap_certifications_required is an array with a non-uri string element' do
-      config = { udap_certifications_required: ['http://abc', 'def'] }
+      config = { udap_certifications_supported: ['http://abc', 'http://def'],udap_certifications_required: ['http://abc', 'def'] }
 
       result = run(test, config_json: config.to_json)
 
@@ -188,20 +197,12 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'grant_types_supported field test' do
     let(:test) { group.tests[4] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
-    end
-
-    it 'passes if grant_types_supported is an array of uri strings' do
-      config = { grant_types_supported: ['http://abc', 'http://def'] }
-
-      result = run(test, config_json: config.to_json)
-
-      expect(result.result).to eq('pass')
+      expect(result.result).to eq('fail')
     end
 
     it 'fails if grant_types_supported is not an array' do
@@ -211,6 +212,14 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/be an Array/)
+    end
+
+    it 'fails if array is present but empty' do
+      config = { grant_types_supported: []}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
     end
 
     it 'fails if grant_types_supported is an array with a non-string element' do
@@ -229,6 +238,14 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/authorization_code/)
+    end
+
+    it 'passes if grant_types_supported includes a valid grant type' do
+      config = { grant_types_supported: ['client_credentials']}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
     end
   end
 
@@ -273,24 +290,39 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'authorization_endpoint field test' do
     let(:test) { group.tests[6] }
 
-    it 'omits if field is not present' do
+    it 'skips if grant_types_supported field is not present' do
       config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('skip')
+    end
+
+    it 'skips if grant_types_supported values are not an array' do
+      config = { grant_types_supported: 'authorization_code'}
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('skip')
+    end
+
+    it 'omits if authorization_code is not a supported grant type' do
+      config = { grant_types_supported: ['client_credentials']}
 
       result = run(test, config_json: config.to_json)
 
       expect(result.result).to eq('omit')
     end
 
-    it 'passes if authorization_endpoint is a uri strings' do
-      config = { authorization_endpoint: 'http://abc' }
+    it 'fails if authorization_code is a supported grant type but authorization_endpoint field is not present' do
+      config = { grant_types_supported: ['authorization_code']}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('pass')
+      expect(result.result).to eq('fail')
     end
 
     it 'fails if authorization_endpoint is not a string' do
-      config = { authorization_endpoint: ['http://abc'] }
+      config = { grant_types_supported: ['authorization_code'], authorization_endpoint: ['http://abc'] }
 
       result = run(test, config_json: config.to_json)
 
@@ -299,24 +331,32 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if authorization_endpoint is a non-uri string' do
-      config = { authorization_endpoint: 'def' }
+      config = { grant_types_supported: ['authorization_code'], authorization_endpoint: 'def' }
 
       result = run(test, config_json: config.to_json)
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/valid URI/)
     end
+
+    it 'passes if authorization_code is a supported grant type and authorization_endpoint is a uri string' do
+      config = { grant_types_supported: ['authorization_code'], authorization_endpoint: 'http://abc' }
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
+    end
   end
 
   describe 'token_endpoint field test' do
     let(:test) { group.tests[7] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
     it 'passes if token_endpoint is a uri strings' do
@@ -349,12 +389,12 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'token_endpoint_auth_methods_supported field test' do
     let(:test) { group.tests[8] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
     it 'passes if token_endpoint_auth_methods_supported is ["private_key_jwt"]' do
@@ -378,16 +418,16 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'token_endpoint_auth_signing_alg_values_supported field test' do
     let(:test) { group.tests[9] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
-    it 'passes if token_endpoint_auth_signing_alg_values_supported is an array of uri strings' do
-      config = { token_endpoint_auth_signing_alg_values_supported: ['http://abc', 'http://def'] }
+    it 'passes if token_endpoint_auth_signing_alg_values_supported is an array of one or more strings' do
+      config = { token_endpoint_auth_signing_alg_values_supported: ['RS256', 'ES384'] }
 
       result = run(test, config_json: config.to_json)
 
@@ -395,7 +435,7 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if token_endpoint_auth_signing_alg_values_supported is not an array' do
-      config = { token_endpoint_auth_signing_alg_values_supported: 'http://abc' }
+      config = { token_endpoint_auth_signing_alg_values_supported: 'RS256' }
 
       result = run(test, config_json: config.to_json)
 
@@ -404,27 +444,35 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
     end
 
     it 'fails if token_endpoint_auth_signing_alg_values_supported is an array with a non-string element' do
-      config = { token_endpoint_auth_signing_alg_values_supported: ['http://abc', 1] }
+      config = { token_endpoint_auth_signing_alg_values_supported: ['RS256', 1] }
 
       result = run(test, config_json: config.to_json)
 
       expect(result.result).to eq('fail')
       expect(result.result_message).to match(/Array of strings/)
     end
+
+    it 'fails if token_endpoint_auth_signing_alg_values_supported is an empty array' do
+      config = {token_endpoint_auth_signing_alg_values_supported: []}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+    end
   end
 
   describe 'registration_endpoint field test' do
     let(:test) { group.tests[10] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
-    it 'passes if registration_endpoint is a uri strings' do
+    it 'passes if registration_endpoint is a uri string' do
       config = { registration_endpoint: 'http://abc' }
 
       result = run(test, config_json: config.to_json)
@@ -492,12 +540,12 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
   describe 'signed_metadata field test' do
     let(:test) { group.tests[12] }
 
-    it 'omits if field is not present' do
+    it 'fails if field is not present' do
       config = {}
 
       result = run(test, config_json: config.to_json)
 
-      expect(result.result).to eq('omit')
+      expect(result.result).to eq('fail')
     end
 
     it 'fails if signed_metadata is not a String' do
@@ -524,6 +572,146 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
       result = run(test, config_json: config.to_json)
 
       expect(result.result).to eq('pass')
+    end
+  end
+
+  describe 'udap_profiles_supported field test' do 
+    let(:test) { group.tests[14] }
+
+    it 'fails if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+    end
+
+    it 'passes if udap_profiles_supported is an array of two or more strings containing "udap_dcr" and "udap_authn"' do 
+      config = {udap_profiles_supported: ['udap_dcr', 'udap_authn']}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
+    end
+
+    it 'fails if udap_profiles_supported is not an array' do 
+      config = {udap_profiles_supported: 'udap_dcr'}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to match(/be an Array/)
+    end
+
+    it 'fails if udap_profiles_supported is an array with a non-string element' do
+      config = {udap_profiles_supported: ['udap_dcr', 1]}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+      expect(result.result_message).to match(/Array of strings/)
+    end
+
+    context 'client_credentials grant type is included in grant_types_supported' do
+
+      it 'fails if udap_profiles_supported does not include "udap_authz"' do 
+        config = {grant_types_supported: ['client_credentials'],udap_profiles_supported: ['udap_dcr', 'udap_authn']}
+
+        result = run(test, config_json: config.to_json)
+
+        expect(result.result).to eq('fail')
+      end
+
+      it 'passes if udap_profiles_supported includes "udap_authz"' do 
+        config = {grant_types_supported: ['client_credentials'],udap_profiles_supported: ['udap_dcr', 'udap_authn', 'udap_authz']}
+        
+        result = run(test, config_json: config.to_json)
+
+        expect(result.result).to eq('pass')
+      end
+    end
+  end
+
+  describe 'udap_authorization_extensions_supported field test' do 
+    let(:test) { group.tests[15] }
+
+    it 'fails if field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+    end
+
+    it 'fails if udap_authorization_extensions_supported value is not an array' do
+      config = {udap_authorization_extensions_supported: 'hl7-b2b'}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('fail')
+    end
+
+    it 'passes if array is empty' do
+      config = {udap_authorization_extensions_supported: []}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
+    end
+
+    it 'passes if array includes a string' do 
+      config = {udap_authorization_extensions_supported: ['hl7-b2b']}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('pass')
+    end
+  end
+
+  describe 'udap_authorization_extensions_required field test' do 
+    let(:test) { group.tests[16] }
+
+    it 'skips if udap_authorization_extensions_supported field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('skip')
+    end
+
+    it 'omits if udap_authorization_extensions_supported field is present but empty' do
+      config = {udap_authorization_extensions_supported: []}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
+
+    context 'udap_authorization_extensions_supported is present and not empty' do
+
+      it 'fails if udap_authorization_extensions_required field is missing' do
+        config = {udap_authorization_extensions_supported: ['hl7-b2b']}
+
+        result = run(test, config_json: config.to_json)
+
+        expect(result.result).to eq('fail')
+      end
+
+      it 'passes if udap_authorization_extensions_required field is an empty array' do
+        config = {udap_authorization_extensions_supported: ['hl7-b2b'], udap_authorization_extensions_required: []}
+
+        result = run(test, config_json: config.to_json)
+
+        expect(result.result).to eq('pass')
+      end
+
+      it 'passes if array includes a string' do 
+        config = {udap_authorization_extensions_supported: ['hl7-b2b'], udap_authorization_extensions_required: ['hl7-b2b']}
+
+        result = run(test, config_json: config.to_json)
+
+        expect(result.result).to eq('pass')
+      end
     end
   end
 end
