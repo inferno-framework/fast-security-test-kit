@@ -1,5 +1,3 @@
-require 'pry'
-
 RSpec.describe FASTSecurity::DiscoveryGroup do
   let(:suite) { Inferno::Repositories::TestSuites.new.find('fast_security') }
   let(:group) { suite.groups[0] }
