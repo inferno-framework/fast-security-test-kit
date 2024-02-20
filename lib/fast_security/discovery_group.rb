@@ -445,7 +445,25 @@ module FASTSecurity
     end
 
     test do 
+      title 'udap_authorization_extensions_required field'
+      description %(
+        An array of zero or more recognized key names for Authorization Extension Objects required by the Authorization Server in every token request. This metadata parameter SHALL be present if the value of the udap_authorization_extensions_supported parameter is not an empty array.
+      )
 
+      input :config_json
+
+      run do 
+        assert_valid_json(config_json)
+        config = JSON.parse(config_json)
+
+        skip_if !config.key?('udap_authorization_extensions_supported') || !config['udap_authorization_extensions_supported'].is_a?(Array), 'Assessment of `authorization_endpoint` field is dependent on values in `grant_types_supported` field, which is not present or correctly formatted'
+
+        omit_if config['udap_authorization_extensions_supported'].blank?, 'No UDAP authorization extensions are supported'
+
+        assert config.key?('udap_authorization_extensions_required'), '`udap_authorization_extensions_required` field must be present because `udap_authorization_extensions_supported field is not empty'
+
+        assert config['udap_authorization_extensions_required'].is_a?(Array), '`udap_authorization_extensions_required` must be an array'
+      end
     end
   end
 end

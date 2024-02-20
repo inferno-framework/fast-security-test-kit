@@ -669,4 +669,51 @@ RSpec.describe FASTSecurity::DiscoveryGroup do
       expect(result.result).to eq('pass')
     end
   end
+
+  describe 'udap_authorization_extensions_required field test' do 
+    let(:test) { group.tests[16] }
+
+    it 'skips if udap_authorization_extensions_supported field is not present' do
+      config = {}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('skip')
+    end
+
+    it 'omits if udap_authorization_extensions_supported field is present but empty' do
+      config = {udap_authorization_extensions_supported: []}
+
+      result = run(test, config_json: config.to_json)
+
+      expect(result.result).to eq('omit')
+    end
+
+    context 'udap_authorization_extensions_supported is present and not empty' do
+
+      it 'fails if udap_authorization_extensions_required field is missing' do
+        config = {udap_authorization_extensions_supported: ['hl7-b2b']}
+
+        result = run(test, config_json: config.to_json)
+
+        expect(result.result).to eq('fail')
+      end
+
+      it 'passes if udap_authorization_extensions_required field is an empty array' do
+        config = {udap_authorization_extensions_supported: ['hl7-b2b'], udap_authorization_extensions_required: []}
+
+        result = run(test, config_json: config.to_json)
+
+        expect(result.result).to eq('pass')
+      end
+
+      it 'passes if array includes a string' do 
+        config = {udap_authorization_extensions_supported: ['hl7-b2b'], udap_authorization_extensions_required: ['hl7-b2b']}
+
+        result = run(test, config_json: config.to_json)
+
+        expect(result.result).to eq('pass')
+      end
+    end
+  end
 end
