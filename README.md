@@ -1,3 +1,7 @@
+**This test kit has been replaced by the [UDAP Security Test
+Kit](https://github.com/inferno-framework/udap-security-test-kit) and is no
+longer maintained.**
+
 # Inferno FAST Security IG Test Kit 
 
 This is a work-in-progress collection of tests for the [FAST Security
