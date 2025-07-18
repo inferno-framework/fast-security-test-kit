@@ -2,7 +2,6 @@ Gem::Specification.new do |spec|
   spec.name          = 'fast_security_test_kit'
   spec.version       = '0.1.1'
   spec.authors       = ['Stephen MacVicar']
-  spec.email         = ['inferno@groups.mitre.org']
   spec.date          = Time.now.utc.strftime('%Y-%m-%d')
   spec.summary       = 'FAST Security IG Test Kit'
   spec.description   = 'FAST Security IG Test Kit'
